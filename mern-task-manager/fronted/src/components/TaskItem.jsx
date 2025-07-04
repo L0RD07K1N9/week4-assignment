@@ -7,25 +7,32 @@ const TaskItem = ({ task, setTasks }) => {
     setTasks(prev => prev.filter(t => t._id !== task._id));
   };
 
-  const statusColors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    'in progress': 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-  };
+
+  // Color for completed status only, as status is now replaced by completed boolean
+  const completedColor = task.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 flex justify-between items-start">
       <div>
         <h3 className="text-lg font-semibold text-gray-800">{task.title}</h3>
         <p className="text-gray-600">{task.description || 'No description'}</p>
+        <div className="flex flex-wrap gap-2 mt-2">
+          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+            Subject: {task.subject}
+          </span>
+          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+            Priority: {task.priority}
+          </span>
+          <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-pink-100 text-pink-800">
+            Type: {task.type}
+          </span>
+          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${completedColor}`}>
+            {task.completed ? 'Completed' : 'Pending'}
+          </span>
+        </div>
         <p className="text-sm text-gray-500 mt-1">
           Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
         </p>
-        <span
-          className={`inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full ${statusColors[task.status]}`}
-        >
-          {task.status}
-        </span>
       </div>
       <div className="flex space-x-2">
         <Link

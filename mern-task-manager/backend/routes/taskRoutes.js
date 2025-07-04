@@ -2,8 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 
-// Create a task
+// Create a task with explicit validation
 router.post('/', async (req, res) => {
+  const { title, subject, dueDate, priority, type } = req.body;
+  if (!title || !subject || !dueDate || !priority || !type) {
+    return res.status(400).json({
+      error: 'Missing required fields: title, subject, dueDate, priority, and type are required.'
+    });
+  }
   try {
     const task = new Task(req.body);
     await task.save();
@@ -13,10 +19,21 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all tasks
+// Get all tasks, with optional filtering by subject and dueDate
 router.get('/', async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const filter = {};
+    if (req.query.subject) {
+      filter.subject = req.query.subject;
+    }
+    if (req.query.dueDate) {
+      // Find tasks due on a specific date (ignoring time)
+      const date = new Date(req.query.dueDate);
+      const nextDay = new Date(date);
+      nextDay.setDate(date.getDate() + 1);
+      filter.dueDate = { $gte: date, $lt: nextDay };
+    }
+    const tasks = await Task.find(filter);
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: error.message });
